@@ -1,0 +1,10 @@
+# Environment
+.env
+.env.*
+
+# Virtual environment
+venv-hackathon/
+venv/
+__pycache__/
+*.pyc
+*.pyo
