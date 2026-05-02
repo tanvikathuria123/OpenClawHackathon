@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block title %}Components — Career Claw{% endblock %}
+{% block extra_head %}
+<style>
+  .page-header {
+    background: #FEFCE8;
+    border-bottom: var(--border);
+    padding: 2.5rem 2.5rem;
+  }
+  .page-header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.02em; }
+  .page-header p { color: var(--muted); margin-top: 0.4rem; font-size: 1rem; }
+
+  .comp-body { max-width: 1100px; margin: 0 auto; padding: 3rem 2.5rem; }
+
+  .comp-section { margin-bottom: 3.5rem; }
+  .comp-section-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1.3rem; font-weight: 800; margin-bottom: 1.2rem;
+  }
+  .comp-section-title .dot {
+    width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+  }
+  .dot-yellow { background: var(--yellow); border: 2px solid var(--dark); }
+  .dot-dark   { background: var(--dark);   border: 2px solid var(--dark); }
+  .dot-green  { background: #4CAF50;        border: 2px solid var(--dark); }
+  .comp-section-title hr {
+    flex: 1; border: none; border-top: 1.5px solid #E0D8C8; margin: 0;
+  }
+  .comp-subtitle {
+    font-size: 0.82rem; color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 1.5rem; margin-left: 28px;
+  }
+
+  .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+
+  .comp-card {
+    background: #fff;
+    border: 1.5px solid #E0D8C8;
+    border-radius: 10px;
+    padding: 1.4rem 1.5rem;
+    transition: box-shadow 0.15s;
+  }
+  .comp-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  .comp-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.6rem;
+  }
+  .comp-card-title {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 1rem;
+  }
+  .comp-card-title .icon { font-size: 1.3rem; }
+  .badge-pending {
+    font-size: 0.7rem; font-family: 'Space Mono', monospace;
+    background: #FEF9C3; color: #92580A;
+    padding: 3px 10px; border-radius: 20px; font-weight: 600;
+    white-space: nowrap;
+  }
+  .comp-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.55; }
+
+  @media (max-width: 700px) { .comp-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>Components</h1>
+  <p>Reusable building blocks that power Career Claw.</p>
+</div>
+
+<div class="comp-body">
+
+  <!-- Data Connectors -->
+  <div class="comp-section">
+    <div class="comp-section-title">
+      <span class="dot dot-yellow"></span>
+      Data Connectors
+      <hr>
+    </div>
+    <p class="comp-subtitle">Google Docs &nbsp;·&nbsp; Google Sheets &nbsp;·&nbsp; Google Calendar &nbsp;·&nbsp; Notion</p>
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <span class="comp-card-title"><span class="icon">📄</span> Google Docs</span>
+          <span class="badge-pending">not implemented yet</span>
+        </div>
+        <p>Read and write resume and cover letter drafts stored in Google Docs.</p>
+      </div>
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <span class="comp-card-title"><span class="icon">📊</span> Google Sheets</span>
+          <span class="badge-pending">not implemented yet</span>
+        </div>
+        <p>Track job applications and pipeline status in a connected spreadsheet.</p>
+      </div>
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <span class="comp-card-title"><span class="icon">📅</span> Google Calendar</span>
+          <span class="badge-pending">not implemented yet</span>
+        </div>
+        <p>Create interview reminders and follow-up events directly from task capture.</p>
+      </div>
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <span class="comp-card-title"><span class="icon">📓</span> Notion</span>
+          <span class="badge-pending">not implemented yet</span>
+        </div>
+        <p>Sync job search notes and career goals from your Notion workspace.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent - The Brain -->
+  <div class="comp-section">
+    <div class="comp-section-title">
+      <span class="dot dot-dark"></span>
+      Agent — The Brain
+      <hr>
+    </div>
+    <p class="comp-subtitle">Memory &nbsp;·&nbsp; Soul</p>
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <span class="comp-card-title"><span class="icon">🧠</span> Memory</span>
+          <span class="badge-pending">not implemented yet</span>
+        </div>
+        <p>Persists your job preferences, past applications, and tailoring history across sessions.</p>
+      </div>
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <span class="comp-card-title"><span class="icon">🫀</span> Soul</span>
+          <span class="badge-pending">not implemented yet</span>
+        </div>
+        <p>Core reasoning layer that decides how to search, tailor, and prioritize on your behalf.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tools -->
+  <div class="comp-section">
+    <div class="comp-section-title">
+      <span class="dot dot-green"></span>
+      Tools
+      <hr>
+    </div>
+    <p class="comp-subtitle">LinkedIn &nbsp;·&nbsp; Web Search &nbsp;·&nbsp; Telegram</p>
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <span class="comp-card-title"><span class="icon">💼</span> LinkedIn</span>
+          <span class="badge-pending">not implemented yet</span>
+        </div>
+        <p>Searches LinkedIn for roles matching your stated titles, industries, and locations.</p>
+      </div>
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <span class="comp-card-title"><span class="icon">🔍</span> Web Search</span>
+          <span class="badge-pending">not implemented yet</span>
+        </div>
+        <p>Retrieves company context and job market signals to enrich your applications.</p>
+      </div>
+      <div class="comp-card">
+        <div class="comp-card-header">
+          <span class="comp-card-title"><span class="icon">✈️</span> Telegram</span>
+          <span class="badge-pending">not implemented yet</span>
+        </div>
+        <p>Captures tasks via chat, asks clarifying questions, and sets calendar reminders.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

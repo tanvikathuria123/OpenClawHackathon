@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<style>
+  /* ── HERO ────────────────────────────────────────── */
+  .hero {
+    max-width: 1200px; margin: 0 auto;
+    padding: 5rem 2.5rem;
+    display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 4rem;
+    align-items: center; min-height: calc(100vh - 66px);
+  }
+  .hero-badge { margin-bottom: 1.5rem; }
+  .hero h1 {
+    font-size: clamp(2.6rem, 5vw, 4.2rem);
+    font-weight: 800; line-height: 1.08;
+    letter-spacing: -0.03em; margin-bottom: 1.5rem;
+  }
+  .hero h1 .hl {
+    background: var(--yellow); padding: 0 6px;
+    display: inline-block;
+  }
+  .hero p {
+    font-size: 1.1rem; color: var(--muted); line-height: 1.75;
+    max-width: 480px; margin-bottom: 2.5rem;
+  }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .hero-visual {
+    display: flex; justify-content: center; align-items: center;
+    position: relative;
+  }
+  .hero-visual svg {
+    max-width: 320px; width: 100%;
+    filter: drop-shadow(6px 6px 0px rgba(26,26,26,0.15));
+  }
+  /* dashed border decoration around hero SVG */
+  .hero-visual::before {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    border: 2px dashed rgba(26,26,26,0.2);
+    pointer-events: none;
+  }
+
+  /* ── CTA BAND ──────────────────────────────────── */
+  .cta-band {
+    background: var(--yellow);
+    border-top: var(--border); border-bottom: var(--border);
+    padding: 4rem 2.5rem;
+  }
+  .cta-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .cta-band h2 {
+    font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 800;
+    letter-spacing: -0.02em; max-width: 520px;
+  }
+  .cta-band h2 span { text-decoration: underline; }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; text-align: center; padding: 3rem 1.5rem; }
+    .hero p { max-width: 100%; }
+    .hero-visual { display: none; }
+    .hero-actions { justify-content: center; }
+
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ─────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-text">
+    <div class="hero-badge">
+      <span class="tag">v1.0 &nbsp;•&nbsp; Career Productivity</span>
+    </div>
+    <h1>
+      Grab the <span class="hl">right</span><br>
+      opportunities.
+    </h1>
+    <p>
+      Career Claw searches LinkedIn for roles that match your goals,
+      tailors your resume and cover letter to each job, and tracks
+      every task via Telegram.
+    </p>
+    <div class="hero-actions">
+      <a href="/components" class="btn btn-dark">Explore Components &rarr;</a>
+      <a href="/workflows" class="btn btn-outline">See Workflows</a>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <!-- Claw illustration inspired by reference image -->
+    <svg viewBox="0 0 300 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="sk">
+          <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="3" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8"/>
+        </filter>
+      </defs>
+      <g filter="url(#sk)">
+        <!-- Track rail at top -->
+        <rect x="20" y="18" width="260" height="14" rx="2" fill="#D4B832" stroke="#1A1A1A" stroke-width="2.5"/>
+        <circle cx="30" cy="25" r="6" fill="#FAF6EE" stroke="#1A1A1A" stroke-width="2"/>
+        <circle cx="270" cy="25" r="6" fill="#FAF6EE" stroke="#1A1A1A" stroke-width="2"/>
+        <!-- Hanging bracket -->
+        <rect x="128" y="32" width="44" height="22" rx="2" fill="#E8C030" stroke="#1A1A1A" stroke-width="2.5"/>
+        <!-- Scanner body -->
+        <rect x="70" y="54" width="160" height="70" rx="5" fill="#F5C542" stroke="#1A1A1A" stroke-width="2.5"/>
+        <!-- Scanner display -->
+        <rect x="84" y="66" width="72" height="46" rx="3" fill="#1A1A1A"/>
+        <rect x="92" y="74" width="56" height="12" rx="1" fill="#F5C542" opacity="0.35"/>
+        <rect x="92" y="92" width="38" height="8" rx="1" fill="#F5C542" opacity="0.2"/>
+        <!-- Lens -->
+        <circle cx="196" cy="89" r="18" fill="#FAF6EE" stroke="#1A1A1A" stroke-width="2.5"/>
+        <circle cx="196" cy="89" r="10" fill="#1A1A1A"/>
+        <circle cx="190" cy="84" r="3.5" fill="#F5C542" opacity="0.6"/>
+        <!-- Side button -->
+        <circle cx="224" cy="78" r="9" fill="#FAF6EE" stroke="#1A1A1A" stroke-width="2.5"/>
+        <circle cx="224" cy="78" r="4" fill="#D4B832"/>
+        <!-- USB port detail -->
+        <rect x="224" y="105" width="16" height="10" rx="1" fill="#1A1A1A" stroke="#1A1A1A" stroke-width="1"/>
+        <!-- Bottom mount -->
+        <rect x="134" y="124" width="32" height="26" rx="2" fill="#D4B832" stroke="#1A1A1A" stroke-width="2.5"/>
+        <circle cx="140" cy="131" r="3" fill="#1A1A1A"/>
+        <circle cx="160" cy="131" r="3" fill="#1A1A1A"/>
+        <!-- Chain links -->
+        <ellipse cx="150" cy="158" rx="7" ry="10" fill="none" stroke="#1A1A1A" stroke-width="2.5"/>
+        <ellipse cx="150" cy="175" rx="10" ry="7" fill="none" stroke="#1A1A1A" stroke-width="2.5"/>
+        <ellipse cx="150" cy="192" rx="7" ry="10" fill="none" stroke="#1A1A1A" stroke-width="2.5"/>
+        <!-- Hook -->
+        <path d="M150 202 Q128 212 128 230 Q128 248 148 248 Q168 248 168 232 Q168 224 158 220" stroke="#1A1A1A" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M154 218 L164 224 L155 229" stroke="#1A1A1A" stroke-width="2.5" fill="none"/>
+        <!-- Briefcase -->
+        <rect x="68" y="252" width="164" height="130" rx="8" fill="#2A2A3E" stroke="#1A1A1A" stroke-width="3"/>
+        <!-- Handle -->
+        <path d="M118 252 L118 238 Q150 228 182 238 L182 252" stroke="#1A1A1A" stroke-width="3" fill="none"/>
+        <rect x="112" y="234" width="14" height="12" rx="2" fill="#3A3A50" stroke="#1A1A1A" stroke-width="2"/>
+        <rect x="174" y="234" width="14" height="12" rx="2" fill="#3A3A50" stroke="#1A1A1A" stroke-width="2"/>
+        <!-- Center divider -->
+        <line x1="68" y1="308" x2="232" y2="308" stroke="#1A1A1A" stroke-width="2"/>
+        <!-- Glowing square -->
+        <rect x="102" y="262" width="96" height="80" rx="4" fill="#F5C542" opacity="0.12"/>
+        <rect x="110" y="270" width="80" height="64" rx="3" fill="#F5C542" opacity="0.45"/>
+        <!-- Corner bolts -->
+        <circle cx="82" cy="265" r="5.5" fill="#F5C542" stroke="#1A1A1A" stroke-width="2"/>
+        <circle cx="218" cy="265" r="5.5" fill="#F5C542" stroke="#1A1A1A" stroke-width="2"/>
+        <circle cx="82" cy="370" r="5.5" fill="#F5C542" stroke="#1A1A1A" stroke-width="2"/>
+        <circle cx="218" cy="370" r="5.5" fill="#F5C542" stroke="#1A1A1A" stroke-width="2"/>
+        <!-- Lock -->
+        <rect x="138" y="302" width="24" height="18" rx="3" fill="#F5C542" stroke="#1A1A1A" stroke-width="2"/>
+        <circle cx="150" cy="311" r="4" fill="#1A1A1A"/>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<!-- ── CTA BAND ─────────────────────────────────────── -->
+<section class="cta-band">
+  <div class="cta-inner">
+    <h2>Ready to <span>claw</span> your next role?</h2>
+    <a href="/components" class="btn btn-dark">Get Started &rarr;</a>
+  </div>
+</section>
+
+{% endblock %}
