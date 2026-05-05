@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+{% block title %}Web Search — Career Claw{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  .tool-layout {
+    display: flex;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+  }
+
+  /* ── Left Input Panel ── */
+  .input-panel {
+    width: 25%;
+    min-width: 260px;
+    background: var(--yellow);
+    border-right: var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .input-panel-inner {
+    padding: 2rem 1.6rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+  .input-panel h2 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.2rem;
+  }
+  .input-panel .subtitle {
+    font-size: 0.8rem;
+    font-family: 'Space Mono', monospace;
+    color: #6B5C00;
+    margin-bottom: 0.5rem;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .field-group label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #4A3D00;
+  }
+  .field-group input,
+  .field-group textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1.5px solid var(--dark);
+    border-radius: 7px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.9rem;
+    background: #FFFDE8;
+    color: var(--dark);
+    box-sizing: border-box;
+    resize: vertical;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .field-group input:focus,
+  .field-group textarea:focus {
+    outline: none;
+    border-color: var(--dark);
+    box-shadow: 3px 3px 0 var(--dark);
+  }
+  .field-group textarea {
+    min-height: 130px;
+  }
+
+  .btn-analyze {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--dark);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    margin-top: 0.4rem;
+  }
+  .btn-analyze:hover { opacity: 0.85; }
+  .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .hint {
+    font-size: 0.75rem;
+    color: #7A6500;
+    line-height: 1.5;
+  }
+
+  /* ── Right Output Panel ── */
+  .output-panel {
+    width: 75%;
+    background: #FAFAF7;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .output-inner {
+    padding: 2.5rem 3rem;
+    flex: 1;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 400px;
+    color: var(--muted);
+    text-align: center;
+    gap: 1rem;
+  }
+  .empty-state .big-icon { font-size: 3.5rem; }
+  .empty-state p { font-size: 0.95rem; max-width: 340px; line-height: 1.6; }
+
+  .loading-state {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 400px;
+    gap: 1.2rem;
+    color: var(--muted);
+  }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid #E0D8C8;
+    border-top-color: var(--dark);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-state p { font-size: 0.9rem; font-family: 'Space Mono', monospace; }
+
+  .error-box {
+    display: none;
+    background: #FEF2F2;
+    border: 1.5px solid #FCA5A5;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    color: #991B1B;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .result-content { display: none; }
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: var(--border);
+  }
+  .result-header h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+  .btn-copy {
+    padding: 0.4rem 1rem;
+    background: #fff;
+    border: 1.5px solid var(--dark);
+    border-radius: 6px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-copy:hover { background: #F5F5F0; }
+
+  /* Markdown output styles */
+  #analysis-output h2 {
+    font-size: 1.25rem; font-weight: 800;
+    margin: 1.8rem 0 0.6rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 2px solid #E0D8C8;
+  }
+  #analysis-output h2:first-child { margin-top: 0; }
+  #analysis-output h3 {
+    font-size: 1rem; font-weight: 700;
+    margin: 1.2rem 0 0.4rem; color: #333;
+  }
+  #analysis-output p { line-height: 1.7; margin: 0.5rem 0; font-size: 0.95rem; }
+  #analysis-output ul { padding-left: 1.4rem; margin: 0.4rem 0; }
+  #analysis-output li { line-height: 1.7; font-size: 0.95rem; margin-bottom: 0.2rem; }
+  #analysis-output strong { font-weight: 700; }
+  #analysis-output hr { border: none; border-top: 1px solid #E0D8C8; margin: 1.2rem 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tool-layout">
+
+  <!-- Left: Input Fields -->
+  <div class="input-panel">
+    <div class="input-panel-inner">
+      <div>
+        <h2>🔍 Web Search</h2>
+        <p class="subtitle">Company fit analysis</p>
+      </div>
+
+      <div class="field-group">
+        <label>Company Name *</label>
+        <input type="text" id="company" placeholder="e.g. Anthropic" />
+      </div>
+
+      <div class="field-group">
+        <label>Location</label>
+        <input type="text" id="location" placeholder="e.g. San Francisco, CA" />
+      </div>
+
+      <div class="field-group">
+        <label>Job Title</label>
+        <input type="text" id="title" placeholder="e.g. ML Engineer" />
+      </div>
+
+      <div class="field-group">
+        <label>Job Description</label>
+        <textarea id="jd" placeholder="Paste the full job description here (optional but recommended)…"></textarea>
+      </div>
+
+      <button class="btn-analyze" id="analyze-btn" onclick="runAnalysis()">Analyze Fit →</button>
+
+      <p class="hint">Searches Glassdoor, Levels.fyi, TeamBlind, and more — then scores the opportunity against your preferences.</p>
+    </div>
+  </div>
+
+  <!-- Right: Output -->
+  <div class="output-panel">
+    <div class="output-inner">
+
+      <div class="error-box" id="error-box"></div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="empty-state">
+        <span class="big-icon">🔍</span>
+        <p>Fill in the company details on the left and click <strong>Analyze Fit</strong> to get a deep-dive report.</p>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-state" id="loading-state">
+        <div class="spinner"></div>
+        <p>Searching the web & analyzing fit…</p>
+      </div>
+
+      <!-- Result -->
+      <div class="result-content" id="result-content">
+        <div class="result-header">
+          <h3 id="result-label">Analysis</h3>
+          <button class="btn-copy" id="copy-btn" onclick="copyResult()">Copy</button>
+        </div>
+        <div id="analysis-output"></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  async function runAnalysis() {
+    const company = document.getElementById('company').value.trim();
+    const location = document.getElementById('location').value.trim();
+    const title = document.getElementById('title').value.trim();
+    const jd = document.getElementById('jd').value.trim();
+
+    if (!company) {
+      showError('Company name is required.');
+      return;
+    }
+
+    document.getElementById('error-box').style.display = 'none';
+    setState('loading');
+
+    try {
+      const res = await fetch('/api/websearch/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ company, location, title, jd }),
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        showError(data.error || 'Something went wrong.');
+        return;
+      }
+
+      document.getElementById('analysis-output').innerHTML = marked.parse(data.analysis);
+      document.getElementById('result-label').textContent = `${company}${title ? ' — ' + title : ''}`;
+      setState('result');
+    } catch (e) {
+      showError('Network error: ' + e.message);
+    }
+  }
+
+  function setState(state) {
+    document.getElementById('empty-state').style.display = state === 'empty' ? 'flex' : 'none';
+    document.getElementById('loading-state').style.display = state === 'loading' ? 'flex' : 'none';
+    document.getElementById('result-content').style.display = state === 'result' ? 'block' : 'none';
+    document.getElementById('analyze-btn').disabled = state === 'loading';
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('error-box');
+    box.textContent = msg;
+    box.style.display = 'block';
+    document.getElementById('empty-state').style.display = 'flex';
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('result-content').style.display = 'none';
+    document.getElementById('analyze-btn').disabled = false;
+  }
+
+  function copyResult() {
+    const text = document.getElementById('analysis-output').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
+  }
+
+  // Allow Enter key in company field to trigger analysis
+  document.getElementById('company').addEventListener('keydown', e => {
+    if (e.key === 'Enter') runAnalysis();
+  });
+</script>
+{% endblock %}

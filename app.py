@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 from src.components.linkedin import extract_jd
+from src.components.websearch import analyze_company
 
 load_dotenv()
 
@@ -22,6 +23,25 @@ def workflows():
 @app.route('/components/linkedin')
 def linkedin_component():
     return render_template('linkedin.html', active='components')
+
+@app.route('/components/websearch')
+def websearch_component():
+    return render_template('websearch.html', active='components')
+
+@app.route('/api/websearch/analyze', methods=['POST'])
+def websearch_analyze():
+    data = request.get_json()
+    company = (data or {}).get('company', '').strip()
+    title = (data or {}).get('title', '').strip()
+    location = (data or {}).get('location', '').strip()
+    jd = (data or {}).get('jd', '').strip()
+    if not company:
+        return jsonify({'success': False, 'error': 'Company name is required'})
+    try:
+        analysis = analyze_company(company, title, location, jd)
+        return jsonify({'success': True, 'analysis': analysis})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/linkedin/extract', methods=['POST'])
 def linkedin_extract():
