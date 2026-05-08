@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block title %}Telegram — Career Claw{% endblock %}
+
+{% block extra_head %}
+<style>
+  .tool-layout {
+    display: flex;
+    height: calc(100vh - 66px);
+    overflow: hidden;
+  }
+
+  .input-panel {
+    width: 25%;
+    min-width: 260px;
+    background: var(--yellow);
+    border-right: var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .input-panel-inner {
+    padding: 2rem 1.6rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+  .input-panel h2 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; }
+  .input-panel .subtitle { font-size: 0.8rem; font-family: 'Space Mono', monospace; color: #6B5C00; }
+
+  .field-group { display: flex; flex-direction: column; gap: 0.3rem; }
+  .field-group label {
+    font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em; color: #4A3D00;
+  }
+  .field-group input, .field-group textarea {
+    width: 100%; padding: 0.6rem 0.75rem;
+    border: 1.5px solid var(--dark); border-radius: 7px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;
+    background: #FFFDE8; color: var(--dark);
+    box-sizing: border-box; resize: vertical;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .field-group input:focus, .field-group textarea:focus {
+    outline: none; border-color: var(--dark); box-shadow: 3px 3px 0 var(--dark);
+  }
+  .field-group textarea { min-height: 120px; }
+
+  .btn-run {
+    width: 100%; padding: 0.75rem;
+    background: var(--dark); color: #fff;
+    border: none; border-radius: 8px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: opacity 0.15s; margin-top: 0.4rem;
+  }
+  .btn-run:hover { opacity: 0.85; }
+  .btn-run:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .history-section { margin-top: auto; padding-top: 1rem; border-top: 1.5px solid #D4B832; }
+  .history-label {
+    font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #4A3D00; margin-bottom: 0.6rem;
+  }
+  .history-item {
+    background: #FFFDE8; border: 1px solid #D4B832; border-radius: 6px;
+    padding: 0.45rem 0.75rem; margin-bottom: 0.4rem;
+    font-size: 0.8rem; font-family: 'Space Mono', monospace; color: #4A3D00;
+    cursor: pointer; transition: background 0.1s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .history-item:hover { background: #FAE07A; }
+  .history-empty { font-size: 0.78rem; color: #7A6500; font-style: italic; }
+
+  .output-panel {
+    width: 75%; background: #FAFAF7;
+    overflow-y: auto; display: flex; flex-direction: column;
+  }
+  .output-inner { padding: 2.5rem 3rem; flex: 1; }
+
+  .empty-state {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 100%; min-height: 400px;
+    color: var(--muted); text-align: center; gap: 1rem;
+  }
+  .empty-state .big-icon { font-size: 3.5rem; }
+  .empty-state h3 { font-size: 1.2rem; font-weight: 700; color: var(--dark); }
+  .empty-state p { font-size: 0.9rem; max-width: 320px; line-height: 1.6; }
+
+  .loading-state {
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    height: 100%; min-height: 400px; gap: 1.2rem; color: var(--muted);
+  }
+  .spinner {
+    width: 40px; height: 40px; border: 3px solid #E0D8C8;
+    border-top-color: var(--dark); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-box {
+    display: none; background: #FEF2F2;
+    border: 1.5px solid #FCA5A5; border-radius: 8px;
+    padding: 1rem 1.2rem; color: #991B1B; font-size: 0.9rem; margin-bottom: 1.5rem;
+  }
+
+  .success-box {
+    display: none; background: #F0FDF4;
+    border: 1.5px solid #86EFAC; border-radius: 12px;
+    padding: 2rem; text-align: center;
+  }
+  .success-box .check { font-size: 3rem; margin-bottom: 0.8rem; }
+  .success-box h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.4rem; color: #14532D; }
+  .success-box .sent-msg {
+    font-size: 0.88rem; color: #166534; background: #DCFCE7;
+    border-radius: 8px; padding: 0.75rem 1rem; margin-top: 0.8rem;
+    font-family: 'Space Mono', monospace; word-break: break-word;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tool-layout">
+
+  <div class="input-panel">
+    <div class="input-panel-inner">
+      <div>
+        <h2>✈️ Telegram</h2>
+        <p class="subtitle">Send a message to yourself</p>
+      </div>
+
+      <div class="field-group">
+        <label>Message</label>
+        <textarea id="message" placeholder="Type your message here…"></textarea>
+      </div>
+
+      <div class="field-group">
+        <label>Chat ID (leave blank for default)</label>
+        <input type="text" id="chat_id" placeholder="Chat ID (leave blank to use default)" />
+      </div>
+
+      <button class="btn-run" id="run-btn" onclick="sendMessage()">▶ Run</button>
+
+      <div class="history-section">
+        <div class="history-label">History</div>
+        <div id="history-list">
+          {% if history %}
+            {% for item in history %}
+            <div class="history-item" title="{{ item.message }}" onclick="loadHistory(this)"
+                 data-message="{{ item.message }}" data-chat="{{ item.chat_id or '' }}">
+              {{ item.timestamp }}
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="history-empty">No history yet</div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="output-panel">
+    <div class="output-inner">
+
+      <div class="error-box" id="error-box"></div>
+
+      <div class="empty-state" id="empty-state">
+        <span class="big-icon">⚡</span>
+        <h3>Ready to run</h3>
+        <p>Fill in the inputs and click Run</p>
+      </div>
+
+      <div class="loading-state" id="loading-state">
+        <div class="spinner"></div>
+        <p style="font-family:'Space Mono',monospace;font-size:0.9rem;">Sending…</p>
+      </div>
+
+      <div class="success-box" id="success-box">
+        <div class="check">✅</div>
+        <h3>Message Sent!</h3>
+        <p style="font-size:0.85rem;color:#166534;">Your Telegram message was delivered successfully.</p>
+        <div class="sent-msg" id="sent-msg"></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  async function sendMessage() {
+    const message = document.getElementById('message').value.trim();
+    const chat_id = document.getElementById('chat_id').value.trim();
+
+    if (!message) { showError('Message is required.'); return; }
+
+    document.getElementById('error-box').style.display = 'none';
+    setState('loading');
+
+    try {
+      const res = await fetch('/api/telegram/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, chat_id }),
+      });
+      const data = await res.json();
+      if (!data.success) { showError(data.error || 'Something went wrong.'); return; }
+      document.getElementById('sent-msg').textContent = message;
+      setState('success');
+      refreshHistory();
+    } catch (e) {
+      showError('Network error: ' + e.message);
+    }
+  }
+
+  function setState(state) {
+    document.getElementById('empty-state').style.display = state === 'empty' ? 'flex' : 'none';
+    document.getElementById('loading-state').style.display = state === 'loading' ? 'flex' : 'none';
+    document.getElementById('success-box').style.display = state === 'success' ? 'block' : 'none';
+    document.getElementById('run-btn').disabled = state === 'loading';
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('error-box');
+    box.textContent = msg; box.style.display = 'block';
+    setState('empty');
+  }
+
+  async function refreshHistory() {
+    const res = await fetch('/api/telegram/history');
+    const data = await res.json();
+    const list = document.getElementById('history-list');
+    if (!data.history || data.history.length === 0) {
+      list.innerHTML = '<div class="history-empty">No history yet</div>';
+      return;
+    }
+    list.innerHTML = data.history.map(h =>
+      `<div class="history-item" title="${h.message}" onclick="loadHistory(this)"
+            data-message="${h.message}" data-chat="${h.chat_id || ''}">
+        ${h.timestamp}
+      </div>`
+    ).join('');
+  }
+
+  function loadHistory(el) {
+    document.getElementById('message').value = el.dataset.message;
+    document.getElementById('chat_id').value = el.dataset.chat;
+  }
+</script>
+{% endblock %}

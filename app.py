@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 from src.components.linkedin import extract_jd
 from src.components.websearch import analyze_company
+from src.components.telegram import send_telegram, get_history
 
 load_dotenv()
 
@@ -42,6 +43,27 @@ def websearch_analyze():
         return jsonify({'success': True, 'analysis': analysis})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/components/telegram')
+def telegram_component():
+    return render_template('telegram.html', active='components', history=get_history())
+
+@app.route('/api/telegram/send', methods=['POST'])
+def telegram_send():
+    data = request.get_json()
+    message = (data or {}).get('message', '').strip()
+    chat_id = (data or {}).get('chat_id', '').strip() or None
+    if not message:
+        return jsonify({'success': False, 'error': 'Message is required'})
+    try:
+        send_telegram(message, chat_id)
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/telegram/history')
+def telegram_history():
+    return jsonify({'history': get_history()})
 
 @app.route('/api/linkedin/extract', methods=['POST'])
 def linkedin_extract():
