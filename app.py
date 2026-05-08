@@ -1,13 +1,16 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, session
 from dotenv import load_dotenv
 from src.components.linkedin import extract_jd
 from src.components.websearch import analyze_company
 from src.components.telegram import send_telegram, get_history
 from src.components.agent import chat as agent_chat, get_history as agent_history, get_session_messages, MODELS, PERSONALITIES
+from src.components.gdocs import get_flow, get_credentials, save_token, create_doc
+import os
 
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key')
 
 @app.route('/')
 @app.route('/home')
@@ -106,6 +109,47 @@ def agent_session(session_id):
 @app.route('/api/agent/history')
 def agent_history_api():
     return jsonify({'history': agent_history()})
+
+@app.route('/components/gdocs')
+def gdocs_component():
+    return render_template('gdocs.html', active='components', connected=bool(get_credentials()))
+
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI', 'http://localhost:7200/auth/google/callback')
+
+@app.route('/auth/google')
+def auth_google():
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+    flow = get_flow(GOOGLE_REDIRECT_URI)
+    auth_url, state = flow.authorization_url(access_type='offline', prompt='consent')
+    session['oauth_state'] = state
+    return redirect(auth_url)
+
+@app.route('/auth/google/callback')
+def auth_google_callback():
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+    flow = get_flow(GOOGLE_REDIRECT_URI)
+    flow.fetch_token(authorization_response=request.url)
+    save_token(flow.credentials.to_json())
+    return redirect('/components/gdocs')
+
+@app.route('/auth/google/disconnect')
+def auth_google_disconnect():
+    if os.path.exists('data/google_token.json'):
+        os.remove('data/google_token.json')
+    return redirect('/components/gdocs')
+
+@app.route('/api/gdocs/save', methods=['POST'])
+def gdocs_save():
+    data = request.get_json()
+    name = (data or {}).get('name', 'Untitled Document').strip()
+    latex = (data or {}).get('latex', '').strip()
+    if not latex:
+        return jsonify({'success': False, 'error': 'No content to save'})
+    try:
+        url = create_doc(name, latex)
+        return jsonify({'success': True, 'url': url})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True, port=7200)

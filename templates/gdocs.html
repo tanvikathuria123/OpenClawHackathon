@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+{% block title %}Google Docs — Career Claw{% endblock %}
+
+{% block extra_head %}
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  .tool-layout { display: flex; height: calc(100vh - 66px); overflow: hidden; }
+
+  .input-panel {
+    width: 25%; min-width: 260px;
+    background: var(--yellow); border-right: var(--border);
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .input-panel-inner {
+    padding: 2rem 1.6rem; flex: 1;
+    display: flex; flex-direction: column; gap: 1.1rem;
+  }
+  .input-panel h2 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; }
+  .input-panel .subtitle { font-size: 0.8rem; font-family: 'Space Mono', monospace; color: #6B5C00; }
+
+  .field-group { display: flex; flex-direction: column; gap: 0.3rem; }
+  .field-group label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #4A3D00; }
+  .field-group input {
+    width: 100%; padding: 0.6rem 0.75rem;
+    border: 1.5px solid var(--dark); border-radius: 7px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;
+    background: #FFFDE8; color: var(--dark); box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .field-group input:focus { outline: none; border-color: var(--dark); box-shadow: 3px 3px 0 var(--dark); }
+
+  .btn-run {
+    width: 100%; padding: 0.75rem;
+    background: var(--dark); color: #fff;
+    border: none; border-radius: 8px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: opacity 0.15s; margin-top: 0.4rem;
+  }
+  .btn-run:hover { opacity: 0.85; }
+  .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-connect {
+    width: 100%; padding: 0.65rem;
+    background: #fff; color: var(--dark);
+    border: 1.5px solid var(--dark); border-radius: 8px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: background 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-connect:hover { background: #F0F0F0; }
+  .btn-connect.connected { background: #D1FAE5; border-color: #10B981; color: #065F46; }
+
+  .status-badge {
+    font-size: 0.72rem; font-family: 'Space Mono', monospace;
+    padding: 3px 10px; border-radius: 20px; font-weight: 600;
+    text-align: center;
+  }
+  .status-connected { background: #D1FAE5; color: #065F46; }
+  .status-disconnected { background: #FEF3C7; color: #92580A; }
+
+  /* Right panel */
+  .output-panel { width: 75%; background: #FAFAF7; display: flex; flex-direction: column; overflow: hidden; }
+
+  .tab-bar {
+    display: flex; border-bottom: var(--border);
+    background: #fff; padding: 0 2rem; gap: 0; flex-shrink: 0;
+  }
+  .tab-btn {
+    padding: 0.9rem 1.5rem; font-weight: 700; font-size: 0.9rem;
+    border: none; background: none; cursor: pointer;
+    border-bottom: 3px solid transparent; margin-bottom: -2.5px;
+    color: var(--muted); transition: color 0.15s, border-color 0.15s;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .tab-btn.active { color: var(--dark); border-bottom-color: var(--dark); }
+  .tab-btn:hover:not(.active) { color: var(--dark); }
+
+  .tab-content { flex: 1; overflow: hidden; display: none; flex-direction: column; }
+  .tab-content.active { display: flex; }
+
+  /* LaTeX editor */
+  .latex-editor-wrap { flex: 1; display: flex; flex-direction: column; padding: 1.5rem 2rem; gap: 1rem; overflow: hidden; }
+  #latex-input {
+    flex: 1; width: 100%;
+    font-family: 'Space Mono', monospace; font-size: 0.88rem;
+    border: 1.5px solid #D0C8B8; border-radius: 8px;
+    padding: 1rem; resize: none; background: #fff;
+    color: var(--dark); line-height: 1.6;
+    transition: border-color 0.15s;
+  }
+  #latex-input:focus { outline: none; border-color: var(--dark); box-shadow: 3px 3px 0 #D0C8B8; }
+
+  .btn-compile {
+    align-self: flex-end; padding: 0.65rem 2rem;
+    background: var(--dark); color: #fff;
+    border: none; border-radius: 8px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .btn-compile:hover { opacity: 0.85; }
+
+  /* Preview */
+  .preview-wrap {
+    flex: 1; overflow-y: auto; padding: 2rem 3rem;
+  }
+  .doc-preview {
+    max-width: 720px; margin: 0 auto;
+    background: #fff; border: 1px solid #E0D8C8; border-radius: 8px;
+    padding: 3rem 3.5rem; min-height: 500px;
+    font-family: 'Georgia', serif; font-size: 1rem; line-height: 1.8; color: #1A1A1A;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .doc-preview h1 { font-size: 1.6rem; font-weight: 700; text-align: center; margin-bottom: 0.3rem; }
+  .doc-preview .doc-author { text-align: center; color: #555; margin-bottom: 1.5rem; font-style: italic; }
+  .doc-preview h2 { font-size: 1.2rem; font-weight: 700; margin: 1.5rem 0 0.5rem; border-bottom: 1px solid #E0D8C8; padding-bottom: 0.3rem; }
+  .doc-preview h3 { font-size: 1.05rem; font-weight: 700; margin: 1.2rem 0 0.4rem; }
+  .doc-preview p { margin-bottom: 0.8rem; }
+  .doc-preview ul, .doc-preview ol { padding-left: 1.5rem; margin-bottom: 0.8rem; }
+  .doc-preview li { margin-bottom: 0.3rem; }
+  .doc-preview .empty-preview { color: #AAA; font-style: italic; font-family: 'Space Grotesk', sans-serif; text-align: center; padding: 4rem 0; }
+
+  .error-box {
+    display: none; background: #FEF2F2;
+    border: 1.5px solid #FCA5A5; border-radius: 8px;
+    padding: 1rem 1.2rem; color: #991B1B; font-size: 0.9rem; margin: 1rem 2rem 0;
+  }
+  .success-toast {
+    display: none; background: #F0FDF4; border: 1.5px solid #86EFAC; border-radius: 8px;
+    padding: 0.9rem 1.2rem; color: #166534; font-size: 0.88rem; margin: 1rem 2rem 0;
+  }
+  .success-toast a { color: #065F46; font-weight: 700; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tool-layout">
+
+  <!-- Left panel -->
+  <div class="input-panel">
+    <div class="input-panel-inner">
+      <div>
+        <h2>📄 Google Docs</h2>
+        <p class="subtitle">Create & save documents</p>
+      </div>
+
+      <div class="field-group">
+        <label>Document Name</label>
+        <input type="text" id="doc-name" placeholder="Untitled Document" />
+      </div>
+
+      <div>
+        <div class="status-badge {% if connected %}status-connected{% else %}status-disconnected{% endif %}" id="auth-status">
+          {% if connected %}✓ Google Connected{% else %}Not connected{% endif %}
+        </div>
+      </div>
+
+      {% if not connected %}
+      <a href="/auth/google" class="btn-connect" id="connect-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.101-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        Connect Google
+      </a>
+      {% else %}
+      <a href="/auth/google/disconnect" class="btn-connect connected">✓ Connected — Disconnect</a>
+      {% endif %}
+
+      <button class="btn-run" id="save-btn" onclick="saveDoc()" {% if not connected %}disabled{% endif %}>
+        💾 Save to Google Docs
+      </button>
+
+      <div id="save-error" class="error-box" style="margin:0;"></div>
+      <div id="save-success" class="success-toast" style="margin:0;"></div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="output-panel">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('latex', this)">LaTeX</button>
+      <button class="tab-btn" onclick="switchTab('preview', this)" id="preview-tab-btn">Doc Preview</button>
+    </div>
+
+    <div class="error-box" id="error-box"></div>
+
+    <!-- LaTeX tab -->
+    <div class="tab-content active" id="tab-latex">
+      <div class="latex-editor-wrap">
+        <textarea id="latex-input" placeholder="Paste your LaTeX code here…
+
+\documentclass{article}
+\begin{document}
+\title{My Document}
+\author{Author Name}
+\maketitle
+
+\section{Introduction}
+Hello, world!
+
+\end{document}"></textarea>
+        <button class="btn-compile" onclick="compile()">▶ Compile</button>
+      </div>
+    </div>
+
+    <!-- Preview tab -->
+    <div class="tab-content" id="tab-preview">
+      <div class="preview-wrap">
+        <div class="doc-preview" id="doc-preview">
+          <p class="empty-preview">Click "Compile" in the LaTeX tab to see the rendered document.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  function compile() {
+    const latex = document.getElementById('latex-input').value;
+    document.getElementById('doc-preview').innerHTML = latexToHtml(latex) || '<p class="empty-preview">Nothing to render.</p>';
+    if (window.MathJax) MathJax.typesetPromise([document.getElementById('doc-preview')]);
+    switchTab('preview', document.querySelectorAll('.tab-btn')[1]);
+  }
+
+  function latexToHtml(s) {
+    // strip preamble
+    s = s.replace(/\\documentclass[\s\S]*?\\begin\{document\}/m, '').replace(/\\end\{document\}[\s\S]*/m, '');
+    // title / author block
+    let title = '', author = '';
+    s = s.replace(/\\title\{([^}]*)\}/g, (_, t) => { title = t; return ''; });
+    s = s.replace(/\\author\{([^}]*)\}/g, (_, a) => { author = a; return ''; });
+    s = s.replace(/\\maketitle/g, '');
+    let header = (title ? `<h1>${title}</h1>` : '') + (author ? `<p class="doc-author">${author}</p>` : '');
+    // structure
+    s = s.replace(/\\section\*?\{([^}]*)\}/g, '<h2>$1</h2>');
+    s = s.replace(/\\subsection\*?\{([^}]*)\}/g, '<h3>$1</h3>');
+    s = s.replace(/\\subsubsection\*?\{([^}]*)\}/g, '<h4>$1</h4>');
+    // inline formatting
+    s = s.replace(/\\textbf\{([^}]*)\}/g, '<strong>$1</strong>');
+    s = s.replace(/\\textit\{([^}]*)\}/g, '<em>$1</em>');
+    s = s.replace(/\\emph\{([^}]*)\}/g, '<em>$1</em>');
+    s = s.replace(/\\underline\{([^}]*)\}/g, '<u>$1</u>');
+    s = s.replace(/\\texttt\{([^}]*)\}/g, '<code>$1</code>');
+    // lists
+    s = s.replace(/\\begin\{itemize\}/g, '<ul>').replace(/\\end\{itemize\}/g, '</ul>');
+    s = s.replace(/\\begin\{enumerate\}/g, '<ol>').replace(/\\end\{enumerate\}/g, '</ol>');
+    s = s.replace(/\\item\s*/g, '<li>');
+    // line breaks & paragraphs
+    s = s.replace(/\\\\/g, '<br>');
+    s = s.replace(/\\newpage/g, '<hr>');
+    // strip remaining commands
+    s = s.replace(/\\[a-zA-Z]+\*?\{([^}]*)\}/g, '$1');
+    s = s.replace(/\\[a-zA-Z]+/g, '');
+    s = s.replace(/[{}]/g, '');
+    // paragraphs from blank lines
+    s = s.split(/\n{2,}/).map(p => p.trim()).filter(Boolean).map(p => `<p>${p.replace(/\n/g, ' ')}</p>`).join('\n');
+    return header + s;
+  }
+
+  async function saveDoc() {
+    const name = document.getElementById('doc-name').value.trim() || 'Untitled Document';
+    const latex = document.getElementById('latex-input').value.trim();
+    const errEl = document.getElementById('save-error');
+    const okEl = document.getElementById('save-success');
+    errEl.style.display = 'none'; okEl.style.display = 'none';
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      const res = await fetch('/api/gdocs/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, latex }),
+      });
+      const data = await res.json();
+      if (!data.success) { errEl.textContent = data.error; errEl.style.display = 'block'; }
+      else { okEl.innerHTML = `✅ Saved! <a href="${data.url}" target="_blank">Open in Google Docs →</a>`; okEl.style.display = 'block'; }
+    } catch (e) {
+      errEl.textContent = 'Network error: ' + e.message; errEl.style.display = 'block';
+    }
+    btn.disabled = false; btn.textContent = '💾 Save to Google Docs';
+  }
+</script>
+{% endblock %}

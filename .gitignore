@@ -2,6 +2,9 @@
 .env
 .env.*
 
+# Data (credentials, tokens)
+data/
+
 # Virtual environment
 venv-hackathon/
 venv/

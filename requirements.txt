@@ -7,3 +7,6 @@ langchain-core==0.3.58
 langchain-openai==0.3.16
 gunicorn==23.0.0
 lxml==5.3.0
+google-auth==2.38.0
+google-auth-oauthlib==1.2.1
+google-api-python-client==2.169.0
