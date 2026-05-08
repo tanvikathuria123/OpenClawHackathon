@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from src.components.linkedin import extract_jd
 from src.components.websearch import analyze_company
 from src.components.telegram import send_telegram, get_history
+from src.components.agent import chat as agent_chat, get_history as agent_history, get_session_messages, MODELS, PERSONALITIES
 
 load_dotenv()
 
@@ -76,6 +77,35 @@ def linkedin_extract():
         return jsonify({'success': True, 'jd': jd})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/components/agent')
+def agent_component():
+    return render_template('agent.html', active='components',
+                           history=agent_history(), models=MODELS,
+                           personalities=list(PERSONALITIES.keys()))
+
+@app.route('/api/agent/chat', methods=['POST'])
+def agent_chat_api():
+    data = request.get_json()
+    session_id = (data or {}).get('session_id', '').strip()
+    message = (data or {}).get('message', '').strip()
+    model = (data or {}).get('model', MODELS[0])
+    personality = (data or {}).get('personality', 'None')
+    if not message:
+        return jsonify({'success': False, 'error': 'Message is required'})
+    try:
+        result = agent_chat(session_id, message, model, personality)
+        return jsonify({'success': True, **result})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/api/agent/session/<session_id>')
+def agent_session(session_id):
+    return jsonify({'success': True, 'messages': get_session_messages(session_id)})
+
+@app.route('/api/agent/history')
+def agent_history_api():
+    return jsonify({'history': agent_history()})
 
 if __name__ == '__main__':
     app.run(debug=True, port=7200)

@@ -1,0 +1,17 @@
+[
+  {
+    "id": "1c9e60f4-d675-488c-9bc8-564184bb3dc1",
+    "model": "anthropic/claude-sonnet-4-5",
+    "timestamp": "2026-05-07 23:32",
+    "messages": [
+      {
+        "role": "user",
+        "content": "hey! Ho'r ya?"
+      },
+      {
+        "role": "assistant",
+        "content": "Hey there! I'm doing great, thanks for asking! \ud83d\ude0a\n\nHow are *you* doing? What's on your mind today?"
+      }
+    ]
+  }
+]
