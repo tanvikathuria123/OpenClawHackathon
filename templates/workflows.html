@@ -1,9 +1,25 @@
 {% extends "base.html" %}
 {% block title %}Workflows — Career Claw{% endblock %}
 {% block content %}
-<div style="max-width:1100px;margin:0 auto;padding:5rem 2.5rem;text-align:center;">
-  <p style="font-family:'Space Mono',monospace;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:1rem;">// coming soon</p>
-  <h1 style="font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;">Workflows</h1>
-  <p style="color:var(--muted);margin-top:0.75rem;">Under construction. Check back soon.</p>
+<div style="max-width:1100px;margin:0 auto;padding:4rem 2.5rem;">
+  <p style="font-family:'Space Mono',monospace;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:1rem;">// orchestrations</p>
+  <h1 style="font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:2.5rem;">Workflows</h1>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;">
+    <a href="/workflows/1" style="text-decoration:none;color:inherit;">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <span class="tag" style="background:var(--dark);color:var(--yellow);">Workflow 1</span>
+          <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:#22c55e;">● live</span>
+        </div>
+        <h2 style="font-size:1.15rem;font-weight:700;margin-bottom:0.5rem;">Auto Resume Optimizer</h2>
+        <p style="color:var(--muted);font-size:0.9rem;line-height:1.5;">Send a LinkedIn job URL to your Telegram bot → get a tailored resume Google Doc back automatically.</p>
+        <div style="display:flex;gap:0.4rem;margin-top:1.25rem;flex-wrap:wrap;">
+          {% for label in ['Telegram','LinkedIn','Web Search','Agent','Google Docs'] %}
+          <span style="font-family:'Space Mono',monospace;font-size:0.62rem;padding:3px 8px;border:1.5px solid var(--dark);background:var(--yellow);">{{ label }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </a>
+  </div>
 </div>
 {% endblock %}

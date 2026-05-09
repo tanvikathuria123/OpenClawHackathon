@@ -1,3 +1,4 @@
+import os, re
 from flask import Flask, render_template, request, jsonify, redirect, session
 from dotenv import load_dotenv
 from src.components.linkedin import extract_jd
@@ -5,12 +6,14 @@ from src.components.websearch import analyze_company
 from src.components.telegram import send_telegram, get_history
 from src.components.agent import chat as agent_chat, get_history as agent_history, get_session_messages, MODELS, PERSONALITIES
 from src.components.gdocs import get_flow, get_credentials, save_token, create_doc
-import os
+from src.workflows.workflow1 import start_worker, enqueue, start_polling
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-secret-key')
+start_worker()
+start_polling()
 
 @app.route('/')
 @app.route('/home')
@@ -24,6 +27,25 @@ def components():
 @app.route('/workflows')
 def workflows():
     return render_template('workflows.html', active='workflows')
+
+@app.route('/workflows/1')
+def workflow1_page():
+    return render_template('workflow1.html', active='workflows')
+
+@app.route('/webhook/telegram', methods=['POST'])
+def telegram_webhook():
+    data = request.get_json(silent=True) or {}
+    msg = data.get('message', {})
+    text = msg.get('text', '').strip()
+    chat_id = str(msg.get('chat', {}).get('id', ''))
+    print(f"[webhook] received: {text[:80]!r} from chat_id={chat_id}")
+    if re.search(r'linkedin\.com/jobs', text):
+        pos = enqueue(text, chat_id)
+        print(f"[webhook] LinkedIn URL enqueued, queue size={pos}")
+        send_telegram(f"📥 LinkedIn URL queued (position {pos}). Processing...", chat_id)
+    else:
+        print("[webhook] no LinkedIn URL detected, ignoring")
+    return jsonify({'ok': True})
 
 @app.route('/components/linkedin')
 def linkedin_component():

@@ -1,0 +1,206 @@
+%% Tanvi — ML Engineer Resume
+%% Compiled with XeLaTeX
+\documentclass[10pt, letterpaper]{article}
+
+%% ── Packages ────────────────────────────────────────────────────────────────
+\usepackage[margin=0.6in, top=0.55in, bottom=0.55in]{geometry}
+\usepackage{fontspec}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{multirow}
+
+%% ── Colours ─────────────────────────────────────────────────────────────────
+\definecolor{dark}{HTML}{1A1A2E}
+\definecolor{accent}{HTML}{2563EB}
+\definecolor{mid}{HTML}{64748B}
+\definecolor{light}{HTML}{F1F5F9}
+
+%% ── Fonts ───────────────────────────────────────────────────────────────────
+\setmainfont{Liberation Sans}
+\setsansfont{Liberation Sans}
+
+%% ── Hyperlinks ──────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  urlcolor=accent,
+  linkcolor=accent,
+  pdfauthor={Tanvi},
+  pdftitle={Tanvi — ML Engineer Resume}
+}
+
+%% ── Section headers ─────────────────────────────────────────────────────────
+\newcommand{\sectionfmt}[1]{{\normalfont\normalsize\bfseries\color{accent}\MakeUppercase{#1}}}
+\titleformat{\section}
+  {\normalfont\normalsize\bfseries\color{accent}}
+  {}{0em}{\MakeUppercase}
+  [\vspace{-4pt}\textcolor{accent}{\rule{\linewidth}{0.8pt}}\vspace{2pt}]
+\titlespacing{\section}{0pt}{10pt}{4pt}
+
+%% ── List settings ───────────────────────────────────────────────────────────
+\setlist[itemize]{
+  leftmargin=1.2em,
+  itemsep=1.5pt,
+  parsep=0pt,
+  topsep=2pt,
+  label={\textcolor{accent}{\textbullet}}
+}
+
+%% ── No page number ───────────────────────────────────────────────────────────
+\pagestyle{empty}
+
+%% ── Helpers ──────────────────────────────────────────────────────────────────
+\newcommand{\jobheader}[4]{%
+  % #1 company  #2 title  #3 dates  #4 location
+  \vspace{5pt}
+  {\bfseries\color{dark} #1} \hfill {\small\color{mid} #4}\\[-2pt]
+  {\itshape\color{mid}\small #2} \hfill {\small\color{mid} #3}
+  \vspace{2pt}
+}
+
+\newcommand{\subproject}[1]{%
+  \vspace{3pt}
+  {\small\bfseries\itshape\color{dark} #1}
+  \vspace{1pt}
+}
+
+%% ════════════════════════════════════════════════════════════════════════════
+\begin{document}
+\color{dark}
+
+%% ── Name + Contact ───────────────────────────────────────────────────────────
+{\fontsize{28}{32}\selectfont\bfseries TANVI}%
+{\large\color{mid}\quad|\quad ML Engineer}
+
+\vspace{4pt}
+\textcolor{mid}{\small
+  604-723-6219 \quad\textbullet\quad
+  \href{mailto:tanvik.7272@gmail.com}{tanvik.7272@gmail.com} \quad\textbullet\quad
+  \href{https://github.com/tanvikathuria123}{github.com/tanvikathuria123} \quad\textbullet\quad
+  \href{https://linkedin.com/in/tanvi72}{linkedin.com/in/tanvi72}
+}
+
+\vspace{-2pt}
+\textcolor{accent}{\rule{\linewidth}{0.8pt}}
+\vspace{2pt}
+
+%% ── Summary ──────────────────────────────────────────────────────────────────
+{\small ML Engineer with 4+ years building and deploying end-to-end machine learning systems on the Azure stack (Azure ML Studio, Azure OpenAI, Azure Data Factory). Experienced in MLOps — model registries, drift detection, retraining pipelines, and CI/CD — with hands-on LLM work including RAG, prompt engineering, and structured output pipelines. Proven track record as a sole technical owner on production ML systems, working across data scientists, engineers, and executive stakeholders. Deep familiarity with MLflow, Spark, and Docker; actively exploring Databricks tooling.}
+
+%% ── Technical Skills ─────────────────────────────────────────────────────────
+\section{Technical Skills}
+
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\linewidth}{@{} >{\bfseries\small}p{1.85cm} @{\hspace{6pt}} >{\small}X @{}}
+  Languages       & Python, SQL, R, Bash \\
+  MLOps/Deploy & Azure ML Studio, MLflow, WandB, Docker, Flask, Gunicorn, REST APIs, Git, CI/CD, GitHub Actions \\
+  ML/Modeling  & PyTorch, TensorFlow, Scikit-learn, SentenceTransformers, SpaCy, OpenCV, ARIMA, anomaly/drift detection, nested cross-validation, deep learning \\
+  LLM/Retrieval & Azure OpenAI, RAG pipelines, embedding pipelines, prompt engineering, structured LLM outputs, LangChain \\
+  Data/Pipelines & Apache Spark, Pandas, NumPy, PostgreSQL, ELT pipelines, HTCondor, Azure Data Factory, Power BI \\
+  Cloud/Infra   & Azure (Azure ML, Data Lake, OpenAI), Docker, containerised deployments, cloud compute optimisation \\
+  Orchestration   & Azure Data Factory, Databricks Jobs (exposure), Airflow (familiar), MLflow experiment tracking \\
+  Testing/QA   & Automated model validation, hypothesis testing (Friedman, Nemenyi), experiment design, data quality frameworks \\
+\end{tabularx}
+
+%% ── Professional Experience ───────────────────────────────────────────────────
+\section{Professional Experience}
+
+%% Unpacked
+\jobheader{Unpacked \normalfont\small(unpacked.onrender.com)}
+          {Founder \& Machine Learning Engineer — Solo Build}
+          {Jan 2026 – Present}
+          {Vancouver, BC}
+\begin{itemize}
+  \item Architected and shipped an end-to-end ML inference system with a Flask REST API and Gunicorn production server, handling text and image inputs for packaged food ingredient analysis.
+  \item Built a full RAG pipeline: SentenceTransformers embeddings (all-MiniLM-L6-v2), word-window document chunking, cosine similarity retrieval (NumPy + scikit-learn), and precomputed embedding caching to reduce retrieval latency.
+  \item Implemented an LLM orchestration layer with prompt templating, structured output validation, JSON parsing fallbacks, and multimodal ingestion (vision LLM $\rightarrow$ structured JSON) — mirroring production-grade LLM system design.
+  \item Owned full MLOps lifecycle: model versioning, API deployment, latency optimisation, and inference robustness improvements as a solo operator.
+\end{itemize}
+
+%% Fraser Health
+\jobheader{Fraser Health Authority}
+          {Data Platform Engineer — AI/ML Lead}
+          {June 2023 – Present}
+          {Vancouver, BC}
+
+\subproject{NLP Pipeline \& Applied AI Advisory}
+\begin{itemize}
+  \item Designed and deployed an end-to-end NLP/LLM pipeline on Azure ML Studio using Azure OpenAI for topic modelling and theme extraction across 500K+ words of sensitive free-text data; output directly informed CEO-level budget and organisational decisions.
+  \item Delivered the system within strict enterprise governance constraints: secured privacy approvals, implemented human-in-the-loop validation where policy analysts reviewed extracted themes before downstream use — balancing automation with accountability for high-stakes outputs.
+  \item Built automated validation layers and data quality checks into the pipeline; maintained and iterated the production system over 2+ years with zero critical failures.
+  \item Serve as de facto AI lead for a 10-person analytics team: run tool evaluations (Microsoft 365 Copilot), advise on hallucination mitigation, context-window management, prompt engineering, and responsible AI; currently scoping agentic workflow use cases for the team roadmap.
+\end{itemize}
+
+\subproject{Centralised Monitoring \& Evaluation Data Platform}
+\begin{itemize}
+  \item Led end-to-end architecture of Fraser Health's first centralised M\&E platform, consolidating 50+ reports and 60+ KPIs from 10+ legacy sources (Oracle/PARIS, Azure Data Lake, SQL Server, Google Analytics, operational spreadsheets) into a single Power BI platform serving 20+ stakeholders across 9 programs.
+  \item Designed a decentralised data architecture pushing 95\% of processing into R pipelines owned by domain analysts — accelerating indicator development $\sim$20$\times$ while keeping Power BI's import layer minimal for performance; platform has run 2+ years with minimal central intervention and has prompted replication province-wide.
+  \item Owned all architectural and tooling decisions as sole technical lead in a non-technical chain: quarterly roadmaps, delivery syncs, and full documentation enabling 30 contributors to self-serve data quality and definition changes.
+  \item Translated architecture, data governance, and trade-off decisions for Medical Health Officers and executives — the same stakeholder dynamic as communicating ML system design to non-technical leadership.
+\end{itemize}
+
+%% AltaML
+\jobheader{AltaML \normalfont\small| Applied AI Consultancy — Client: Suncor}
+          {Machine Learning Developer}
+          {May 2022 – Aug 2022}
+          {Canada}
+\begin{itemize}
+  \item Designed a time-series anomaly detection system for industrial pressure instrumentation in thermal oil assets using ARIMA soft-sensor models in Python on Azure ML — directly addressing sensor drift and earlier fault detection.
+  \item Built ELT pipelines for sensor signal preprocessing and feature engineering; evaluated ARIMA models against moving-average baselines and improved detection accuracy in a partially-labelled environment.
+  \item Implemented drift detection logic using deviation-based thresholds between forecasted and observed signals — hands-on application of the drift methodology described in this role.
+  \item Partnered with reliability engineers to translate operational constraints into ML requirements; validated against historical fault scenarios, supporting a projected $\sim$\$3M/year production savings opportunity.
+\end{itemize}
+
+%% SFU
+\jobheader{SFU's Big Data Hub \normalfont\small| Applied AI Consultancy — Client: Careteam}
+          {Big Data Analyst}
+          {July 2022 – Dec 2022}
+          {Burnaby, BC}
+\begin{itemize}
+  \item Designed an unsupervised clustering-based patient prioritisation workflow (K-Means, elbow method + clinical stakeholder validation) for a remote healthcare monitoring platform, projecting $\sim$3$\times$ faster patient monitoring.
+  \item Built data ingestion and feature engineering pipelines in Python and PostgreSQL to transform raw patient activity logs into structured behavioural features (engagement frequency, task completion rates).
+\end{itemize}
+
+%% Julich
+\jobheader{Research Center J{\"u}lich}
+          {Machine Learning Research Intern}
+          {July 2020 – June 2021}
+          {Germany}
+\begin{itemize}
+  \item Designed and operated a reproducible ML experimentation platform running 30,000+ cross-validated evaluations across 150 configurations to quantify preprocessing-induced data leakage — rigorous experiment design and automated testing at scale.
+  \item Built a nested cross-validation pipeline in tidymodels with a custom feature selection step; automated large-scale parallel execution via HTCondor (150+ jobs); validated results with Friedman and Nemenyi statistical tests.
+  \item Delivered fully reproducible, documented ML pipelines consistent with the engineering rigour and automated testing standards this role requires.
+\end{itemize}
+
+%% Adobe
+\jobheader{Adobe Systems}
+          {Software Development Intern — Photoshop Express}
+          {Jan 2020 – June 2020}
+          {India}
+\begin{itemize}
+  \item Optimised touch-interaction handling in Photoshop Express, reducing input response latency from $\sim$4 seconds to near real-time — production performance engineering in a shipping mobile product.
+  \item Developed hierarchical UI features in Objective-C supporting complex theme categorisation and tab-based navigation at scale.
+\end{itemize}
+
+%% ── Education ────────────────────────────────────────────────────────────────
+\section{Education}
+
+\jobheader{Simon Fraser University}
+          {MSc Professional Computer Science — Big Data \quad|\quad GPA: 3.96/4.3}
+          {Sep 2021 – Dec 2022}
+          {Burnaby, BC}
+
+\vspace{4pt}
+\jobheader{National Institute of Technology, Kurukshetra}
+          {BTech Computer Science \quad|\quad GPA: 9.13/10}
+          {July 2017 – June 2021}
+          {India}
+
+\end{document}
