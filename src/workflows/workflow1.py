@@ -5,7 +5,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from src.components.linkedin import extract_jd
 from src.components.websearch import analyze_company
-from src.components.gdocs import create_doc
+from src.components.gdocs import create_pdf_doc
 from src.components.telegram import send_telegram
 from src.prompts.resume_optimizer import SYSTEM_PROMPT, build_user_prompt
 
@@ -25,19 +25,29 @@ def _llm():
 def _parse_jd_fields(jd_text):
     company = title = location = ""
     for line in jd_text.split('\n'):
-        l = line.strip().lstrip('#').strip()
-        if not company and re.search(r'\bcompany\b', l, re.I) and ':' in l:
-            company = re.sub(r'^[^:]+:\s*\*?', '', l).strip('*').strip()
-        if not title and re.search(r'\b(?:job\s+)?title\b', l, re.I) and ':' in l:
-            title = re.sub(r'^[^:]+:\s*\*?', '', l).strip('*').strip()
-        if not location and re.search(r'\blocation\b', l, re.I) and ':' in l:
-            location = re.sub(r'^[^:]+:\s*\*?', '', l).strip('*').strip()
+        s = line.strip()
+        if not s:
+            continue
+        if not title and s.startswith('# ') and not s.startswith('## '):
+            title = re.sub(r'\*+', '', s[2:]).strip()
+            continue
+        l = re.sub(r'^[#*\s]+', '', s)
+        m = re.match(r'(?i)(company|location|job\s*title|title)\s*:\s*(.+)', l)
+        if m:
+            field = re.sub(r'\s+', '', m.group(1).lower())
+            value = re.sub(r'\*+', '', m.group(2)).strip()
+            if field == 'company' and not company:
+                company = value
+            elif field == 'location' and not location:
+                location = value
+            elif field in ('title', 'jobtitle') and not title:
+                title = value
     return company or "Unknown Company", title or "Unknown Title", location or ""
 
 
-def _extract_latex(text):
-    m = re.search(r'```(?:latex|tex)?\n([\s\S]+?)\n```', text)
-    return m.group(1) if m else text
+def _strip_code_fences(text):
+    m = re.search(r'```[a-zA-Z]*\n([\s\S]+?)\n```', text)
+    return (m.group(1) if m else text).strip()
 
 
 def run_workflow1(url, chat_id):
@@ -61,17 +71,17 @@ def run_workflow1(url, chat_id):
         SystemMessage(content=SYSTEM_PROMPT),
         HumanMessage(content=build_user_prompt(jd, company_info, base_resume))
     ])
-    optimized_latex = _extract_latex(resp.content)
-    print("[workflow1] step 3 done")
+    optimized_resume = _strip_code_fences(resp.content)
+    print(f"[workflow1] step 3 done ({len(optimized_resume)} chars)")
 
-    print("[workflow1] step 4/5: saving to Google Docs...")
+    print("[workflow1] step 4/5: compiling LaTeX to PDF and uploading to Drive...")
     doc_title = f"{company} - {title}"
-    doc_url = create_doc(doc_title, optimized_latex)
+    doc_url = create_pdf_doc(doc_title, optimized_resume)
     print(f"[workflow1] step 4 done: {doc_url}")
 
     print("[workflow1] step 5/5: sending result to Telegram...")
     send_telegram(
-        f"✅ Resume ready!\n\n\U0001f4c4 {doc_title}\n{doc_url}\n\n\U0001f3e2 Company Insights:\n{company_info[:600]}",
+        f"✅ Resume PDF ready!\n\n\U0001f4c4 {doc_title}\n{doc_url}\n\n\U0001f3e2 Company Insights:\n{company_info[:600]}",
         chat_id
     )
     print("[workflow1] DONE")
